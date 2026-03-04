@@ -1,0 +1,22 @@
+plugins {
+    id 'java-library'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+ext {
+    gdxVersion = '1.14.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api "com.badlogicgames.gdx:gdx:$gdxVersion"
+}
+
+test {
+    useJUnitPlatform()
+}

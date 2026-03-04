@@ -1,0 +1,3 @@
+rootProject.name = 'HoldenGopper'
+include 'core'
+include 'app'
