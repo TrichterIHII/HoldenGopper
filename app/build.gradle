@@ -22,3 +22,12 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+task runDesktop(type: JavaExec) {
+    group = "application"
+    description = "Run DesktopLauncher on macOS"
+
+    mainClass.set("net.holdengopper.app.DesktopLauncher")
+    classpath = sourceSets.main.runtimeClasspath
+    jvmArgs = ["-XstartOnFirstThread"]
+}
