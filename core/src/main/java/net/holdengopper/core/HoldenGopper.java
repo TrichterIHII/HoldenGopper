@@ -4,7 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
-import net.holdengopper.core.screens.CasinoScreen;
+import net.holdengopper.core.screens.menus.MainMenuScreen;
 
 public class HoldenGopper extends Game {
 
@@ -35,6 +35,6 @@ public class HoldenGopper extends Game {
         Gdx.graphics.setCursor(cursor);
         scaled.dispose();
 
-        setScreen(new CasinoScreen());
+        setScreen(new MainMenuScreen());
     }
 }
