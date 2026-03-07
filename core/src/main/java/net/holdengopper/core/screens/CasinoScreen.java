@@ -2,24 +2,21 @@ package net.holdengopper.core.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import net.holdengopper.core.screens.menus.MenuScreen;
 
-public class CasinoScreen extends ScreenAdapter {
+public class CasinoScreen extends MenuScreen {
     private final SpriteBatch batch;
-    private final Texture img;
     private final ShapeRenderer shapeRenderer;
 
     private final Vector2 pos;
 
     public CasinoScreen() {
         batch = new SpriteBatch();
-        img = new Texture("test.jpeg");
         shapeRenderer = new ShapeRenderer();
 
         pos = new Vector2(100, 100);
@@ -47,7 +44,7 @@ public class CasinoScreen extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         batch.begin();
-            batch.draw(img, Gdx.graphics.getWidth() - img.getWidth(), Gdx.graphics.getHeight() - img.getHeight());
+
         batch.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -60,7 +57,6 @@ public class CasinoScreen extends ScreenAdapter {
     public void dispose() {
         super.dispose();
         batch.dispose();
-        img.dispose();
     }
 
     @Override

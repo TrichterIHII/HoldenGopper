@@ -1,6 +1,11 @@
 package net.holdengopper.core.button;
 
-public record ButtonEvent(Button source) {
+public class ButtonEvent {
+    private final Button source;
+
+    public ButtonEvent(Button source) {
+        this.source = source;
+    }
 
     public Button getSource() {
         return source;

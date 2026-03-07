@@ -11,7 +11,7 @@ public class DesktopLauncher {
         config.setTitle("HoldenGopper");
         config.useVsync(true);
         config.setWindowedMode(800, 800 / 16 * 9);
-        config.setWindowIcon(Files.FileType.Internal, "test.jpeg");
+        config.setWindowIcon(Files.FileType.Internal, "icon.png");
         //config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
         new Lwjgl3Application(new HoldenGopper(), config);
     }
