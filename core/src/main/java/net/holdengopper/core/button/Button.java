@@ -34,8 +34,9 @@ public class Button {
 
     public void render() {
         batch.draw(texture, button.x, button.y, button.width, button.height);
-        float x = (Gdx.graphics.getWidth() - layout.width) / 0x2;
-        float y = (Gdx.graphics.getHeight() + layout.height) / 0x2;
+
+        float x = button.x + (button.width >> 1) - layout.width / 2;
+        float y = button.y + (button.height >> 1) + layout.height / 2;
         font.draw(batch, text, x, y);
     }
 

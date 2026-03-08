@@ -12,6 +12,7 @@ public class DesktopLauncher {
         config.useVsync(true);
         config.setWindowedMode(800, 800 / 16 * 9);
         config.setWindowIcon(Files.FileType.Internal, "icon.png");
+        config.setBackBufferConfig(8,8,8,8,16,0,0);
         //config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
         new Lwjgl3Application(new HoldenGopper(), config);
     }

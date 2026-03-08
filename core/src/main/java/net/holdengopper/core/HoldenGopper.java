@@ -3,6 +3,7 @@ package net.holdengopper.core;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Cursor;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import net.holdengopper.core.screens.menus.MainMenuScreen;
 
