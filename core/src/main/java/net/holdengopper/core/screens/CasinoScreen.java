@@ -11,6 +11,7 @@ import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
 import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ public class CasinoScreen extends MenuScreen {
 
     private final Vector3 dir = new Vector3();
     private final Vector3 up = new Vector3();
+    private final Vector3 right = new Vector3();
 
     private final List<SceneAsset> sceneAssets = new ArrayList<>();
     private final List<Scene> scenes = new ArrayList<>();
@@ -49,9 +51,15 @@ public class CasinoScreen extends MenuScreen {
         sceneManager.environment.add(light);
 
         loadModel("assets/textures/3d/casino_wall.glb", 0f, 0f, 0f, 1f);
+        loadModel("assets/textures/3d/roulette_table.glb", 200f, 40f, 160f, 5f);
+        loadModel("assets/textures/3d/victorian_chair.glb", 295f, 0, 80f, 50f, 0f, 360f - 45f / 2f, 0f);
+        loadModel("assets/textures/3d/victorian_chair.glb", 340f, 0, 80f, 50f, 0f, 355, 0f);
+        loadModel("assets/textures/3d/victorian_chair.glb", 290f, 0, 220f, 50f, 0f, 180f, 0f);
+        loadModel("assets/textures/3d/victorian_chair.glb", 340f, 0, 210f, 50f, 0f, 180f, 0f);
+        SceneAsset carpet = loadAsset("assets/textures/3d/persian_carpet.glb");
         for (int i = 0; i < 11 * 100; i += 100) {
             for (float f = 0; f < 8 * 145.7f; f += 145.7f) {
-                loadModel("assets/textures/3d/persian_carpet.glb", i, 0f, f, 31f, 90f, 0f, 0f);
+                addInstance(carpet, i, 0f, f, 31f, 90f, 0f, 0f);
             }
         }
     }
@@ -74,6 +82,25 @@ public class CasinoScreen extends MenuScreen {
         scenes.add(scene);
     }
 
+    private SceneAsset loadAsset(String path) {
+        SceneAsset asset = new GLBLoader().load(Gdx.files.internal(path));
+        sceneAssets.add(asset);
+        return asset;
+    }
+
+    private void addInstance(@NotNull SceneAsset asset, float x, float y, float z, float scale, float rx, float ry, float rz) {
+        Scene scene = new Scene(asset.scene);
+        scene.modelInstance.transform
+                .setToTranslation(x, y, z)
+                .scl(scale)
+                .rotate(Vector3.X, rx)
+                .rotate(Vector3.Y, ry)
+                .rotate(Vector3.Z, rz);
+
+        sceneManager.addScene(scene);
+        scenes.add(scene);
+    }
+
     @Override
     public void render(float delta) {
         float speed = 100f * delta;
@@ -81,7 +108,7 @@ public class CasinoScreen extends MenuScreen {
         float yaw = -Gdx.input.getDeltaX() * sensitivity;
         float pitch = -Gdx.input.getDeltaY() * sensitivity;
         camera.rotate(Vector3.Y, yaw);
-        Vector3 right = new Vector3(camera.direction).crs(Vector3.Y).nor();
+        right.set(camera.direction).crs(Vector3.Y).nor();
         camera.rotate(right, pitch);
         camera.up.set(Vector3.Y);
         camera.update();
