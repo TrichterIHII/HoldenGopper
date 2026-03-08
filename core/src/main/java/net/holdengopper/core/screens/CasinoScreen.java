@@ -2,26 +2,29 @@ package net.holdengopper.core.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.VertexAttributes;
-import com.badlogic.gdx.graphics.g3d.*;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import net.holdengopper.core.screens.menus.MenuScreen;
+import net.mgsx.gltf.loaders.glb.GLBLoader;
+import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
+import net.mgsx.gltf.scene3d.scene.Scene;
+import net.mgsx.gltf.scene3d.scene.SceneAsset;
+import net.mgsx.gltf.scene3d.scene.SceneManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CasinoScreen extends MenuScreen {
+
     private final PerspectiveCamera camera;
-    private final ModelBatch modelBatch;
-    private final Model model;
-    private final ModelInstance instance;
-    private final Environment environment;
-    private final Vector3 dir;
-    private final Vector3 pos;
-    private final Vector3 up;
+    private final SceneManager sceneManager;
+
+    private final Vector3 dir = new Vector3();
+    private final Vector3 up = new Vector3();
+
+    private final List<SceneAsset> sceneAssets = new ArrayList<>();
+    private final List<Scene> scenes = new ArrayList<>();
 
     public float sensitivity = 0.2f;
 
@@ -33,109 +36,93 @@ public class CasinoScreen extends MenuScreen {
         camera.position.set(0f, 0f, 10f);
         camera.lookAt(0f, 0f, 0f);
         camera.near = 0.1f;
-        camera.far = 300f;
+        camera.far = 1000000f;
         camera.update();
 
-        modelBatch = new ModelBatch();
+        sceneManager = new SceneManager();
+        sceneManager.setCamera(camera);
 
-        ModelBuilder builder = new ModelBuilder();
-        model = builder.createBox(
-                2f, 2f, 2f,
-                new Material(ColorAttribute.createDiffuse(Color.GREEN)),
-                VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal
-        );
+        DirectionalLightEx light = new DirectionalLightEx();
+        light.direction.set(-1f, -0.8f, -0.2f).nor();
+        light.color.set(1f, 1f, 1f, 1f);
+        light.intensity = 5f;
+        sceneManager.environment.add(light);
 
-        instance = new ModelInstance(model);
+        loadModel("assets/textures/3d/casino_wall.glb", 0f, 0f, 0f, 1f);
+        for (int i = 0; i < 11 * 100; i += 100) {
+            for (float f = 0; f < 8 * 145.7f; f += 145.7f) {
+                loadModel("assets/textures/3d/persian_carpet.glb", i, 0f, f, 31f, 90f, 0f, 0f);
+            }
+        }
+    }
 
-        environment = new Environment();
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.8f, 0.8f, 0.8f, 1f));
-        environment.add(new DirectionalLight().set(1f,1f,1f,-1f,-0.8f,-0.2f));
+    private void loadModel(String path, float x, float y, float z, float scale) {
+        loadModel(path, x, y, z, scale, 0f, 0f, 0f);
+    }
 
-        dir = new Vector3();
-        pos = new Vector3();
-        up = new Vector3();
+    private void loadModel(String path, float x, float y, float z, float scale, float rotX, float rotY, float rotZ) {
+        SceneAsset asset = new GLBLoader().load(Gdx.files.internal(path));
+        Scene scene = new Scene(asset.scene);
+        scene.modelInstance.transform
+                .setToTranslation(x, y, z)
+                .scl(scale)
+                .rotate(Vector3.X, rotX)
+                .rotate(Vector3.Y, rotY)
+                .rotate(Vector3.Z, rotZ);
+        sceneManager.addScene(scene);
+        sceneAssets.add(asset);
+        scenes.add(scene);
     }
 
     @Override
     public void render(float delta) {
-        float maxVelocity = 10.0f;
-        float speed = maxVelocity * delta;
+        float speed = 100f * delta;
 
-        int mouseX = Gdx.input.getDeltaX();
-        int mouseY = Gdx.input.getDeltaY();
-
-        Vector3 right = new Vector3();
-        right.set(camera.direction).crs(camera.up).nor();
-
-        camera.rotate(Vector3.Y, mouseX * sensitivity);
-        camera.rotate(right, mouseY * sensitivity);
-
-        camera.direction.nor();
+        float yaw = -Gdx.input.getDeltaX() * sensitivity;
+        float pitch = -Gdx.input.getDeltaY() * sensitivity;
+        camera.rotate(Vector3.Y, yaw);
+        Vector3 right = new Vector3(camera.direction).crs(Vector3.Y).nor();
+        camera.rotate(right, pitch);
+        camera.up.set(Vector3.Y);
+        camera.update();
 
         dir.set(camera.direction).scl(speed);
-        pos.set(camera.position).scl(speed);
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) camera.position.add(dir);
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) camera.position.sub(dir);
 
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            camera.position.add(dir);
-        }
+        right.set(camera.direction).crs(camera.up).nor().scl(speed);
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) camera.position.sub(right);
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) camera.position.add(right);
 
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            camera.position.sub(dir);
-        }
+        up.set(camera.up).scl(speed);
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE))      camera.position.add(up);
+        if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) camera.position.sub(up);
 
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            right.set(camera.direction).crs(camera.up).nor();
-            right.scl(speed);
-            camera.position.sub(right);
-        }
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
 
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            right.set(camera.direction).crs(camera.up).nor();
-            right.scl(speed);
-            camera.position.add(right);
-        }
+        camera.update();
 
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            up.set(camera.up).scl(speed);
-            camera.position.add(up);
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
-            up.set(camera.up).scl(speed);
-            camera.position.sub(up);
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            Gdx.app.exit();
-        }
-
-        camera.update(true);
-
-        Gdx.gl.glViewport(0,0,Gdx.graphics.getBackBufferWidth(),Gdx.graphics.getBackBufferHeight());
+        Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-        modelBatch.begin(camera);
-        modelBatch.render(instance, environment);
-        modelBatch.end();
+        sceneManager.update(delta);
+        sceneManager.render();
     }
 
     @Override
     public void resize(int width, int height) {
-        camera.viewportWidth = width;
-        camera.viewportHeight = height;
-        camera.update(true);
+        sceneManager.updateViewport(width, height);
     }
 
     @Override
     public void dispose() {
         super.dispose();
-        modelBatch.dispose();
-        model.dispose();
+        for (SceneAsset asset : sceneAssets) asset.dispose();
     }
 
     @Override
     public void hide() {
-        this.dispose();
+        dispose();
         Gdx.input.setCursorCatched(false);
     }
 }

@@ -9,10 +9,6 @@ ext {
     gdxVersion = '1.14.0'
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation project(':core')
     implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
@@ -26,7 +22,6 @@ test {
 task runDesktop(type: JavaExec) {
     group = "application"
     description = "Run DesktopLauncher on macOS"
-
     mainClass.set("net.holdengopper.app.DesktopLauncher")
     classpath = sourceSets.main.runtimeClasspath
     jvmArgs = ["-XstartOnFirstThread"]
